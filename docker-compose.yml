@@ -1,0 +1,46 @@
+version: "3.9"
+services:
+  go-ent-api:
+    depends_on:
+      - go-ent-db
+    ports:
+      - 8080:80
+    build:
+      context: .
+    restart: always
+    container_name: "go-ent-api"
+    networks:
+      - go-entNet
+    environment:
+      TZ: Asia/Tokyo
+      DB_HOST: go-ent-db
+      DB_PORT: 3306
+      DB_NAME: topsdb
+      DB_USERNAME: user1
+      DB_PASSWORD: password
+    volumes:
+      - .:/root/api
+    tty: true
+
+  go-ent-db:
+    image: mysql:8
+    restart: always
+    container_name: "go-ent-db"
+    ports:
+      - 13307:3306
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: topsdb
+      MYSQL_USER: user1
+      MYSQL_PASSWORD: password
+      TZ: Asia/Tokyo
+    networks:
+      - go-entNet
+
+networks:
+  go-entNet:
+
+volumes:
+  db-data:
