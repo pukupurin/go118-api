@@ -14,28 +14,39 @@ services:
     environment:
       TZ: Asia/Tokyo
       DB_HOST: go-ent-db
-      DB_PORT: 3306
+      DB_PORT: 5432
       DB_NAME: topsdb
-      DB_USERNAME: user1
-      DB_PASSWORD: password
+      DB_USERNAME: postgres
+      DB_PASSWORD: password001
     volumes:
       - .:/root/api
     tty: true
 
   go-ent-db:
-    image: mysql:8
-    restart: always
+    image: postgres:15.1-alpine
+    restart: unless-stopped
     container_name: "go-ent-db"
     ports:
-      - 13307:3306
+      - 15432:5432
     volumes:
-      - db-data:/var/lib/mysql
+      - db-data:/var/lib/postgresql/data
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: topsdb
-      MYSQL_USER: user1
-      MYSQL_PASSWORD: password
       TZ: Asia/Tokyo
+      LANG: ja_JP.utf8
+      POSTGRES_DB: topsdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password001
+    networks:
+      - go-entNet
+
+  adminer:
+    depends_on:
+      - go-ent-db
+    image: adminer
+    container_name: "go-ent-adminer"
+    restart: always
+    ports:
+      - 19999:8080
     networks:
       - go-entNet
 
