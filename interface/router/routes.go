@@ -16,4 +16,8 @@ func UserDIRouting(db *ent.Client, e *echo.Echo) {
 	userHandler := handler.NewUserHandler(userUsecase)
 
 	e.POST("/users", userHandler.CreateUser())
+	e.PUT("/users/:id", userHandler.UpdateUser())
+	e.DELETE("/users/:id", userHandler.DeleteUser())
+	e.GET("/users", userHandler.GetUserList())
+	e.GET("/users/:id", userHandler.GetUserOne())
 }

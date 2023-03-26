@@ -20,6 +20,7 @@ func main() {
 	}
 	defer db.Close()
 
+	// migration
 	if err := db.Schema.Create(context.Background()); err != nil {
 		fmt.Printf("failed creating schema resources: %v", err)
 	}
