@@ -25,7 +25,7 @@ ENV GOARCH=amd64
 
 WORKDIR /tmp/app
 
-COPY go.* .
+COPY go.* ./
 RUN go mod download
 
 COPY . ./
