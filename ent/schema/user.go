@@ -1,7 +1,10 @@
 package schema
 
 import (
+	"time"
+
 	"entgo.io/ent"
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/field"
 )
 
@@ -13,8 +16,20 @@ type User struct {
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name").Default("unknown"),
-		field.Int("age").Positive(),
+		field.String("name").
+			Default("unknown").
+			SchemaType(map[string]string{
+				dialect.Postgres: "varchar(255)",
+			}),
+		field.Int("age").
+			Positive(),
+		field.Time("created_at").
+			Default(time.Now),
+		field.Time("updated_at").
+			Default(time.Now).
+			UpdateDefault(time.Now),
+		field.Time("deleted_at").
+			Optional(),
 	}
 }
 
