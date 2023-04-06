@@ -1,8 +1,6 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	infra "go-ent/infra/postgres"
 	"go-ent/interface/router"
 
@@ -19,11 +17,6 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
-
-	// migration
-	if err := db.Schema.Create(context.Background()); err != nil {
-		fmt.Printf("failed creating schema resources: %v", err)
-	}
 
 	// Middleware
 	e.Use(middleware.Logger())
