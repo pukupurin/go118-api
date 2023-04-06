@@ -1,10 +1,24 @@
 steps:
-  # Build the container image
+  # Build application container image
   - name: "gcr.io/cloud-builders/docker"
     args: ["build", "-t", "${_IMAGE_NAME}", "."]
-  # Push the container image to Container Registry
+  # Build migration container image
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-f",
+        "db-migration/Dockerfile",
+        "-t",
+        "${_MIGRATION_IMAGE_NAME}",
+        ".",
+      ]
+  # Push application container image to Artifact Registry
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "${_IMAGE_NAME}"]
+  # Push migration container image to Artifact Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "${_MIGRATION_IMAGE_NAME}"]
   # Deploy container image to Cloud Run
   - name: "gcr.io/cloud-builders/gcloud"
     args:
@@ -21,6 +35,8 @@ steps:
 substitutions:
   _IMAGE_NAME: >-
     ${_ARTIFACT_HOST}/${PROJECT_ID}/${_ARTIFACT_REPO}/${_SERVICE_NAME}:${_IMAGE_TAG}
+  _MIGRATION_IMAGE_NAME: >-
+    ${_ARTIFACT_HOST}/${PROJECT_ID}/${_ARTIFACT_REPO}/${_SERVICE_NAME}-migrate-db:${_IMAGE_TAG}
   _ARTIFACT_HOST: "${_ARTIFACT_HOST}"
   _ARTIFACT_REPO: "${_ARTIFACT_REPO}"
   _SERVICE_NAME: "${_SERVICE_NAME}"
