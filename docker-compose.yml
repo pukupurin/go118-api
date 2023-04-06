@@ -33,6 +33,30 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     networks:
       - go-entNet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      timeout: 20s
+      interval: 3s
+      retries: 10
+
+  go-ent-db-migration:
+    depends_on:
+      go-ent-db:
+        condition: service_healthy
+    build:
+      context: db-migration
+    container_name: go-ent-db-migration
+    networks:
+      - go-entNet
+    environment:
+      DB_HOST: go-ent-db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./db-migration:/root/migration
+    command: scripts/migrate_local.sh
 
   adminer:
     depends_on:

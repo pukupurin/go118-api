@@ -18,7 +18,7 @@ run:
 
 db_migrate:
 	atlas migrate apply \
-		--dir "file://ent/migrate/migrations" \
+		--dir "file://db-migration/migrations" \
 		--url "postgres://$(DB_USERNAME):$(DB_PASSWORD)@localhost:15432/$(DB_NAME)?search_path=public&sslmode=disable"
 
 .PHONY: db_migrate_diff
@@ -29,6 +29,6 @@ ifndef name
 	@exit 1
 endif
 	atlas migrate diff $(name) \
-		--dir "file://ent/migrate/migrations" \
+		--dir "file://db-migration/migrations" \
 		--to "ent://ent/schema" \
 		--dev-url "docker://postgres/14/test?search_path=public"
