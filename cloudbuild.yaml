@@ -50,7 +50,7 @@ steps:
         "--region",
         "${_REGION}",
       ]
-    id: Update Migration Job
+    id: Execute Migration Job
   # Deploy container image to Cloud Run
   - name: "gcr.io/cloud-builders/gcloud"
     args:
