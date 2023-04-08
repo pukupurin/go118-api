@@ -23,6 +23,34 @@ steps:
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "${_MIGRATION_IMAGE_NAME}"]
     id: Push Migration Image
+  # Update Migration Job
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
+      [
+        "beta",
+        "run",
+        "jobs",
+        "update",
+        "${_MIGRATION_JOB_NAME}",
+        "--image",
+        "${_MIGRATION_IMAGE_NAME}",
+        "--region",
+        "${_REGION}",
+      ]
+    id: Update Migration Job
+  # Execute Migration Job
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
+      [
+        "beta",
+        "run",
+        "jobs",
+        "execute",
+        "${_MIGRATION_JOB_NAME}",
+        "--region",
+        "${_REGION}",
+      ]
+    id: Update Migration Job
   # Deploy container image to Cloud Run
   - name: "gcr.io/cloud-builders/gcloud"
     args:
@@ -42,6 +70,7 @@ substitutions:
     ${_ARTIFACT_HOST}/${PROJECT_ID}/${_ARTIFACT_REPO}/${_SERVICE_NAME}:${_IMAGE_TAG}
   _MIGRATION_IMAGE_NAME: >-
     ${_ARTIFACT_HOST}/${PROJECT_ID}/${_ARTIFACT_REPO}/${_SERVICE_NAME}-migrate-db:${_IMAGE_TAG}
+
   _ARTIFACT_HOST: "${_ARTIFACT_HOST}"
   _ARTIFACT_REPO: "${_ARTIFACT_REPO}"
   _SERVICE_NAME: "${_SERVICE_NAME}"
