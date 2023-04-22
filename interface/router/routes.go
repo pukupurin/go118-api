@@ -4,7 +4,6 @@ import (
 	"go-ent/ent"
 	infra "go-ent/infra/postgres"
 	"go-ent/interface/handler"
-	"go-ent/interface/interceptor"
 	"go-ent/usecase"
 	"net/http"
 
@@ -17,7 +16,7 @@ func UserDIRouting(db *ent.Client, mux *http.ServeMux) {
 	userUsecase := usecase.NewUserUsecase(userRepository)
 	userHandler := handler.NewUserHandler(userUsecase)
 
-	i := connect.WithInterceptors(interceptor.LoggingInterceptor())
+	i := connect.WithInterceptors()
 
 	userPath, userServiceHandler := userHandler.UserServiceHandler(i)
 
