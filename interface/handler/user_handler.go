@@ -1,159 +1,104 @@
 package handler
 
 import (
+	"context"
 	"fmt"
 	"net/http"
-	"strconv"
 
+	userv1 "go-ent/gen/user/v1"
+	"go-ent/gen/user/v1/userv1connect"
 	"go-ent/usecase"
 
-	"github.com/labstack/echo/v4"
+	"github.com/bufbuild/connect-go"
+	"github.com/samber/lo"
 )
 
-// UserHander User handerのinterface
-type UserHandler interface {
-	CreateUser() echo.HandlerFunc
-	UpdateUser() echo.HandlerFunc
-	DeleteUser() echo.HandlerFunc
-	GetUserList() echo.HandlerFunc
-	GetUserOne() echo.HandlerFunc
-}
-
-type userHandler struct {
+type UserHandler struct {
 	userUsecase usecase.UserUsecase
 }
 
 // NewUserHandler User handler のコンストラクタ
-func NewUserHandler(userUsecase usecase.UserUsecase) UserHandler {
-	return &userHandler{
+func NewUserHandler(userUsecase usecase.UserUsecase) *UserHandler {
+	return &UserHandler{
 		userUsecase: userUsecase,
 	}
 }
 
-// req & res json -------------
-type DefaultResponse struct {
-	Message string `json:"message"`
+func (h *UserHandler) UserServiceHandler(i connect.HandlerOption) (string, http.Handler) {
+	return userv1connect.NewUserServiceHandler(h, i)
 }
 
-// ----------------------------
-
-func (h *userHandler) CreateUser() echo.HandlerFunc {
-	return func(c echo.Context) error {
-		var res DefaultResponse
-
-		postdata := new(usecase.ReqCreateUpdateUser)
-		err := c.Bind(postdata)
-		if err != nil {
-			res.Message = "parameter error"
-			return c.JSON(http.StatusBadRequest, res)
-		}
-
-		err = h.userUsecase.CreateUser(c.Request().Context(), *postdata)
-		if err != nil {
-			res.Message = "create user error"
-			fmt.Println(err.Error())
-			return c.JSON(http.StatusBadRequest, res)
-		}
-
-		res.Message = "success"
-
-		return c.JSON(http.StatusOK, res)
+func (h *UserHandler) CreateUser(ctx context.Context, req *connect.Request[userv1.CreateUserRequest]) (*connect.Response[userv1.CreateUserResponse], error) {
+	reqData := usecase.ReqCreateUpdateUser{
+		Name: req.Msg.Name,
+		Age:  int(req.Msg.Age),
 	}
+
+	err := h.userUsecase.CreateUser(ctx, reqData)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, connect.NewError(connect.CodeUnknown, err)
+	}
+
+	return connect.NewResponse(&userv1.CreateUserResponse{}), nil
 }
 
-func (h *userHandler) UpdateUser() echo.HandlerFunc {
-	return func(c echo.Context) error {
-		var res DefaultResponse
-
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			res.Message = "parameter error"
-			return c.JSON(http.StatusBadRequest, res)
-		}
-
-		postdata := new(usecase.ReqCreateUpdateUser)
-		if err := c.Bind(postdata); err != nil {
-			res.Message = "parameter error"
-			return c.JSON(http.StatusBadRequest, res)
-		}
-
-		err = h.userUsecase.UpdateUser(c.Request().Context(), id, *postdata)
-		if err != nil {
-			res.Message = "update user error"
-			fmt.Println(err.Error())
-			return c.JSON(http.StatusBadRequest, res)
-		}
-
-		res.Message = "success"
-
-		return c.JSON(http.StatusOK, res)
+func (h *UserHandler) UpdateUser(ctx context.Context, req *connect.Request[userv1.UpdateUserRequest]) (*connect.Response[userv1.UpdateUserResponse], error) {
+	reqData := usecase.ReqCreateUpdateUser{
+		Name: req.Msg.Name,
+		Age:  int(req.Msg.Age),
 	}
+
+	err := h.userUsecase.UpdateUser(ctx, int(req.Msg.Id), reqData)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, connect.NewError(connect.CodeUnknown, err)
+	}
+
+	return connect.NewResponse(&userv1.UpdateUserResponse{}), nil
 }
 
-func (h *userHandler) DeleteUser() echo.HandlerFunc {
-	return func(c echo.Context) error {
-		var res DefaultResponse
+func (h *UserHandler) DeleteUser(ctx context.Context, req *connect.Request[userv1.DeleteUserRequest]) (*connect.Response[userv1.DeleteUserResponse], error) {
 
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			res.Message = "parameter error"
-			return c.JSON(http.StatusBadRequest, res)
-		}
-
-		err = h.userUsecase.DeleteUser(c.Request().Context(), id)
-		if err != nil {
-			res.Message = "delete user error"
-			fmt.Println(err.Error())
-			return c.JSON(http.StatusBadRequest, res)
-		}
-
-		res.Message = "success"
-
-		return c.JSON(http.StatusOK, res)
+	err := h.userUsecase.DeleteUser(ctx, int(req.Msg.Id))
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, connect.NewError(connect.CodeUnknown, err)
 	}
+
+	return connect.NewResponse(&userv1.DeleteUserResponse{}), nil
 }
 
-func (h *userHandler) GetUserList() echo.HandlerFunc {
-	return func(c echo.Context) error {
-		var res usecase.ResGetUserList
-		var resError DefaultResponse
+func (h *UserHandler) GetUserList(ctx context.Context, req *connect.Request[userv1.GetUserListRequest]) (*connect.Response[userv1.GetUserListResponse], error) {
 
-		postdata := new(usecase.ReqGetUserList)
-		err := c.Bind(postdata)
-		if err != nil {
-			resError.Message = "parameter error"
-			return c.JSON(http.StatusBadRequest, resError)
-		}
-
-		res, err = h.userUsecase.GetUserList(c.Request().Context(), postdata.Limit, postdata.Offset)
-		if err != nil {
-			resError.Message = "get user error"
-			fmt.Println(err.Error())
-			return c.JSON(http.StatusBadRequest, resError)
-		}
-
-		return c.JSON(http.StatusOK, res)
+	resUsers, err := h.userUsecase.GetUserList(ctx, int(req.Msg.Limit), int(req.Msg.Offset))
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, connect.NewError(connect.CodeUnknown, err)
 	}
+
+	return connect.NewResponse(&userv1.GetUserListResponse{
+		Users: lo.Map(resUsers.Users, func(u usecase.ResGetUser, _ int) *userv1.GetUserOneResponse {
+			return &userv1.GetUserOneResponse{
+				Id:   int32(u.ID),
+				Name: u.Name,
+				Age:  int32(u.Age),
+			}
+		}),
+	}), nil
 }
 
-func (h *userHandler) GetUserOne() echo.HandlerFunc {
-	return func(c echo.Context) error {
-		var res usecase.ResGetUser
-		var resError DefaultResponse
+func (h *UserHandler) GetUserOne(ctx context.Context, req *connect.Request[userv1.GetUserOneRequest]) (*connect.Response[userv1.GetUserOneResponse], error) {
 
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			resError.Message = "parameter error"
-			return c.JSON(http.StatusBadRequest, resError)
-		}
-
-		res, err = h.userUsecase.GetUserOne(c.Request().Context(), id)
-		if err != nil {
-			resError.Message = "get user error"
-			fmt.Println(err.Error())
-			return c.JSON(http.StatusBadRequest, resError)
-		}
-
-		return c.JSON(http.StatusOK, res)
+	resUser, err := h.userUsecase.GetUserOne(ctx, int(req.Msg.Id))
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, connect.NewError(connect.CodeUnknown, err)
 	}
+
+	return connect.NewResponse(&userv1.GetUserOneResponse{
+		Id:   int32(resUser.ID),
+		Name: resUser.Name,
+		Age:  int32(resUser.Age),
+	}), nil
 }

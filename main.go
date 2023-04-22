@@ -3,14 +3,13 @@ package main
 import (
 	infra "go-ent/infra/postgres"
 	"go-ent/interface/router"
+	"net/http"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 )
 
 func main() {
-	// Echo instance
-	e := echo.New()
 
 	db, err := infra.OpenDB()
 	if err != nil {
@@ -18,14 +17,15 @@ func main() {
 	}
 	defer db.Close()
 
-	// Middleware
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-	e.Use(middleware.CORS())
+	mux := http.NewServeMux()
 
 	// User関係のDI&ルーティングの初期化
-	router.UserDIRouting(db, e)
+	router.UserDIRouting(db, mux)
 
 	// Start server
-	e.Logger.Fatal(e.Start(":80"))
+	http.ListenAndServe(
+		":80",
+		// Use h2c so we can serve HTTP/2 without TLS.
+		h2c.NewHandler(mux, &http2.Server{}),
+	)
 }

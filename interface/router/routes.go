@@ -4,20 +4,22 @@ import (
 	"go-ent/ent"
 	infra "go-ent/infra/postgres"
 	"go-ent/interface/handler"
+	"go-ent/interface/interceptor"
 	"go-ent/usecase"
+	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/bufbuild/connect-go"
 )
 
-func UserDIRouting(db *ent.Client, e *echo.Echo) {
+func UserDIRouting(db *ent.Client, mux *http.ServeMux) {
 
 	userRepository := infra.NewUserRepository(db)
 	userUsecase := usecase.NewUserUsecase(userRepository)
 	userHandler := handler.NewUserHandler(userUsecase)
 
-	e.POST("/users", userHandler.CreateUser())
-	e.PUT("/users/:id", userHandler.UpdateUser())
-	e.DELETE("/users/:id", userHandler.DeleteUser())
-	e.GET("/users", userHandler.GetUserList())
-	e.GET("/users/:id", userHandler.GetUserOne())
+	i := connect.WithInterceptors(interceptor.LoggingInterceptor())
+
+	userPath, userServiceHandler := userHandler.UserServiceHandler(i)
+
+	mux.Handle(userPath, userServiceHandler)
 }

@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package user.v1;
+
+option go_package = "go-ent/gen/user/v1;userv1";
+
+service UserService {
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
+  rpc GetUserList(GetUserListRequest) returns (GetUserListResponse) {}
+  rpc GetUserOne(GetUserOneRequest) returns (GetUserOneResponse) {}
+}
+
+message CreateUserRequest {
+  string name = 1;
+  int32 age = 2;
+}
+
+message CreateUserResponse {}
+
+message UpdateUserRequest {
+  int32 id = 1;
+  string name = 2;
+  int32 age = 3;
+}
+
+message UpdateUserResponse {}
+
+message DeleteUserRequest {
+  int32 id = 1;
+}
+
+message DeleteUserResponse {}
+
+message GetUserListRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+}
+
+message GetUserListResponse {
+  repeated GetUserOneResponse users = 1;
+}
+
+message GetUserOneRequest {
+  int32 id = 1;
+}
+
+message GetUserOneResponse {
+  int32 id = 1;
+  string name = 2;
+  int32 age = 3;
+}
