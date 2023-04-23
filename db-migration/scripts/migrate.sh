@@ -1,6 +1,8 @@
 #!/bin/sh
 cd `dirname $0`
 
+apk --update --no-cache add curl
+
 curl -o cloud-sql-proxy https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.1.2/cloud-sql-proxy.linux.amd64
 chmod +x cloud-sql-proxy
 
