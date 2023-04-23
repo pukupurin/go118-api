@@ -17,9 +17,7 @@ run:
 	docker exec -it go-ent-api ash -c "air"
 
 db_migrate:
-	atlas migrate apply \
-		--dir "file://db-migration/migrations" \
-		--url "postgres://$(DB_USERNAME):$(DB_PASSWORD)@localhost:15432/$(DB_NAME)?search_path=public&sslmode=disable"
+	docker compose run --rm go-ent-db-migration up
 
 .PHONY: db_migrate_diff
 db_migrate_diff:
@@ -28,7 +26,4 @@ ifndef name
 	@echo ""
 	@exit 1
 endif
-	atlas migrate diff $(name) \
-		--dir "file://db-migration/migrations" \
-		--to "ent://ent/schema" \
-		--dev-url "docker://postgres/14/test?search_path=public"
+	docker exec -it go-ent-api ash -c "go run -mod=mod ent/migrate/main.go $(name)"

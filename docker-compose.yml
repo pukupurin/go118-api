@@ -56,7 +56,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
     volumes:
       - ./db-migration:/root/migration
-    command: scripts/migrate_local.sh
+    entrypoint: ["/bin/sh", "scripts/migrate_local.sh"]
+    command: up
 
   adminer:
     depends_on:
