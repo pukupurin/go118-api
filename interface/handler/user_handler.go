@@ -11,6 +11,8 @@ import (
 
 	"github.com/bufbuild/connect-go"
 	"github.com/samber/lo"
+
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 type UserHandler struct {
@@ -28,7 +30,7 @@ func (h *UserHandler) UserServiceHandler(i connect.HandlerOption) (string, http.
 	return userv1connect.NewUserServiceHandler(h, i)
 }
 
-func (h *UserHandler) CreateUser(ctx context.Context, req *connect.Request[userv1.CreateUserRequest]) (*connect.Response[userv1.CreateUserResponse], error) {
+func (h *UserHandler) CreateUser(ctx context.Context, req *connect.Request[userv1.CreateUserRequest]) (*connect.Response[emptypb.Empty], error) {
 	reqData := usecase.ReqCreateUpdateUser{
 		Name: req.Msg.Name,
 		Age:  int(req.Msg.Age),
@@ -40,10 +42,10 @@ func (h *UserHandler) CreateUser(ctx context.Context, req *connect.Request[userv
 		return nil, connect.NewError(connect.CodeUnknown, err)
 	}
 
-	return connect.NewResponse(&userv1.CreateUserResponse{}), nil
+	return connect.NewResponse(&emptypb.Empty{}), nil
 }
 
-func (h *UserHandler) UpdateUser(ctx context.Context, req *connect.Request[userv1.UpdateUserRequest]) (*connect.Response[userv1.UpdateUserResponse], error) {
+func (h *UserHandler) UpdateUser(ctx context.Context, req *connect.Request[userv1.UpdateUserRequest]) (*connect.Response[emptypb.Empty], error) {
 	reqData := usecase.ReqCreateUpdateUser{
 		Name: req.Msg.Name,
 		Age:  int(req.Msg.Age),
@@ -55,10 +57,10 @@ func (h *UserHandler) UpdateUser(ctx context.Context, req *connect.Request[userv
 		return nil, connect.NewError(connect.CodeUnknown, err)
 	}
 
-	return connect.NewResponse(&userv1.UpdateUserResponse{}), nil
+	return connect.NewResponse(&emptypb.Empty{}), nil
 }
 
-func (h *UserHandler) DeleteUser(ctx context.Context, req *connect.Request[userv1.DeleteUserRequest]) (*connect.Response[userv1.DeleteUserResponse], error) {
+func (h *UserHandler) DeleteUser(ctx context.Context, req *connect.Request[userv1.DeleteUserRequest]) (*connect.Response[emptypb.Empty], error) {
 
 	err := h.userUsecase.DeleteUser(ctx, int(req.Msg.Id))
 	if err != nil {
@@ -66,7 +68,7 @@ func (h *UserHandler) DeleteUser(ctx context.Context, req *connect.Request[userv
 		return nil, connect.NewError(connect.CodeUnknown, err)
 	}
 
-	return connect.NewResponse(&userv1.DeleteUserResponse{}), nil
+	return connect.NewResponse(&emptypb.Empty{}), nil
 }
 
 func (h *UserHandler) GetUserList(ctx context.Context, req *connect.Request[userv1.GetUserListRequest]) (*connect.Response[userv1.GetUserListResponse], error) {

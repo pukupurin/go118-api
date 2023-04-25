@@ -9,6 +9,7 @@ import (
 	errors "errors"
 	connect_go "github.com/bufbuild/connect-go"
 	v1 "go-ent/gen/user/v1"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	http "net/http"
 	strings "strings"
 )
@@ -27,9 +28,9 @@ const (
 
 // UserServiceClient is a client for the user.v1.UserService service.
 type UserServiceClient interface {
-	CreateUser(context.Context, *connect_go.Request[v1.CreateUserRequest]) (*connect_go.Response[v1.CreateUserResponse], error)
-	UpdateUser(context.Context, *connect_go.Request[v1.UpdateUserRequest]) (*connect_go.Response[v1.UpdateUserResponse], error)
-	DeleteUser(context.Context, *connect_go.Request[v1.DeleteUserRequest]) (*connect_go.Response[v1.DeleteUserResponse], error)
+	CreateUser(context.Context, *connect_go.Request[v1.CreateUserRequest]) (*connect_go.Response[emptypb.Empty], error)
+	UpdateUser(context.Context, *connect_go.Request[v1.UpdateUserRequest]) (*connect_go.Response[emptypb.Empty], error)
+	DeleteUser(context.Context, *connect_go.Request[v1.DeleteUserRequest]) (*connect_go.Response[emptypb.Empty], error)
 	GetUserList(context.Context, *connect_go.Request[v1.GetUserListRequest]) (*connect_go.Response[v1.GetUserListResponse], error)
 	GetUserOne(context.Context, *connect_go.Request[v1.GetUserOneRequest]) (*connect_go.Response[v1.GetUserOneResponse], error)
 }
@@ -44,17 +45,17 @@ type UserServiceClient interface {
 func NewUserServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) UserServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &userServiceClient{
-		createUser: connect_go.NewClient[v1.CreateUserRequest, v1.CreateUserResponse](
+		createUser: connect_go.NewClient[v1.CreateUserRequest, emptypb.Empty](
 			httpClient,
 			baseURL+"/user.v1.UserService/CreateUser",
 			opts...,
 		),
-		updateUser: connect_go.NewClient[v1.UpdateUserRequest, v1.UpdateUserResponse](
+		updateUser: connect_go.NewClient[v1.UpdateUserRequest, emptypb.Empty](
 			httpClient,
 			baseURL+"/user.v1.UserService/UpdateUser",
 			opts...,
 		),
-		deleteUser: connect_go.NewClient[v1.DeleteUserRequest, v1.DeleteUserResponse](
+		deleteUser: connect_go.NewClient[v1.DeleteUserRequest, emptypb.Empty](
 			httpClient,
 			baseURL+"/user.v1.UserService/DeleteUser",
 			opts...,
@@ -74,25 +75,25 @@ func NewUserServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts
 
 // userServiceClient implements UserServiceClient.
 type userServiceClient struct {
-	createUser  *connect_go.Client[v1.CreateUserRequest, v1.CreateUserResponse]
-	updateUser  *connect_go.Client[v1.UpdateUserRequest, v1.UpdateUserResponse]
-	deleteUser  *connect_go.Client[v1.DeleteUserRequest, v1.DeleteUserResponse]
+	createUser  *connect_go.Client[v1.CreateUserRequest, emptypb.Empty]
+	updateUser  *connect_go.Client[v1.UpdateUserRequest, emptypb.Empty]
+	deleteUser  *connect_go.Client[v1.DeleteUserRequest, emptypb.Empty]
 	getUserList *connect_go.Client[v1.GetUserListRequest, v1.GetUserListResponse]
 	getUserOne  *connect_go.Client[v1.GetUserOneRequest, v1.GetUserOneResponse]
 }
 
 // CreateUser calls user.v1.UserService.CreateUser.
-func (c *userServiceClient) CreateUser(ctx context.Context, req *connect_go.Request[v1.CreateUserRequest]) (*connect_go.Response[v1.CreateUserResponse], error) {
+func (c *userServiceClient) CreateUser(ctx context.Context, req *connect_go.Request[v1.CreateUserRequest]) (*connect_go.Response[emptypb.Empty], error) {
 	return c.createUser.CallUnary(ctx, req)
 }
 
 // UpdateUser calls user.v1.UserService.UpdateUser.
-func (c *userServiceClient) UpdateUser(ctx context.Context, req *connect_go.Request[v1.UpdateUserRequest]) (*connect_go.Response[v1.UpdateUserResponse], error) {
+func (c *userServiceClient) UpdateUser(ctx context.Context, req *connect_go.Request[v1.UpdateUserRequest]) (*connect_go.Response[emptypb.Empty], error) {
 	return c.updateUser.CallUnary(ctx, req)
 }
 
 // DeleteUser calls user.v1.UserService.DeleteUser.
-func (c *userServiceClient) DeleteUser(ctx context.Context, req *connect_go.Request[v1.DeleteUserRequest]) (*connect_go.Response[v1.DeleteUserResponse], error) {
+func (c *userServiceClient) DeleteUser(ctx context.Context, req *connect_go.Request[v1.DeleteUserRequest]) (*connect_go.Response[emptypb.Empty], error) {
 	return c.deleteUser.CallUnary(ctx, req)
 }
 
@@ -108,9 +109,9 @@ func (c *userServiceClient) GetUserOne(ctx context.Context, req *connect_go.Requ
 
 // UserServiceHandler is an implementation of the user.v1.UserService service.
 type UserServiceHandler interface {
-	CreateUser(context.Context, *connect_go.Request[v1.CreateUserRequest]) (*connect_go.Response[v1.CreateUserResponse], error)
-	UpdateUser(context.Context, *connect_go.Request[v1.UpdateUserRequest]) (*connect_go.Response[v1.UpdateUserResponse], error)
-	DeleteUser(context.Context, *connect_go.Request[v1.DeleteUserRequest]) (*connect_go.Response[v1.DeleteUserResponse], error)
+	CreateUser(context.Context, *connect_go.Request[v1.CreateUserRequest]) (*connect_go.Response[emptypb.Empty], error)
+	UpdateUser(context.Context, *connect_go.Request[v1.UpdateUserRequest]) (*connect_go.Response[emptypb.Empty], error)
+	DeleteUser(context.Context, *connect_go.Request[v1.DeleteUserRequest]) (*connect_go.Response[emptypb.Empty], error)
 	GetUserList(context.Context, *connect_go.Request[v1.GetUserListRequest]) (*connect_go.Response[v1.GetUserListResponse], error)
 	GetUserOne(context.Context, *connect_go.Request[v1.GetUserOneRequest]) (*connect_go.Response[v1.GetUserOneResponse], error)
 }
@@ -153,15 +154,15 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect_go.HandlerOpt
 // UnimplementedUserServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedUserServiceHandler struct{}
 
-func (UnimplementedUserServiceHandler) CreateUser(context.Context, *connect_go.Request[v1.CreateUserRequest]) (*connect_go.Response[v1.CreateUserResponse], error) {
+func (UnimplementedUserServiceHandler) CreateUser(context.Context, *connect_go.Request[v1.CreateUserRequest]) (*connect_go.Response[emptypb.Empty], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("user.v1.UserService.CreateUser is not implemented"))
 }
 
-func (UnimplementedUserServiceHandler) UpdateUser(context.Context, *connect_go.Request[v1.UpdateUserRequest]) (*connect_go.Response[v1.UpdateUserResponse], error) {
+func (UnimplementedUserServiceHandler) UpdateUser(context.Context, *connect_go.Request[v1.UpdateUserRequest]) (*connect_go.Response[emptypb.Empty], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("user.v1.UserService.UpdateUser is not implemented"))
 }
 
-func (UnimplementedUserServiceHandler) DeleteUser(context.Context, *connect_go.Request[v1.DeleteUserRequest]) (*connect_go.Response[v1.DeleteUserResponse], error) {
+func (UnimplementedUserServiceHandler) DeleteUser(context.Context, *connect_go.Request[v1.DeleteUserRequest]) (*connect_go.Response[emptypb.Empty], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("user.v1.UserService.DeleteUser is not implemented"))
 }
 
